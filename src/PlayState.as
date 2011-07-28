@@ -85,7 +85,7 @@ package
 		override public function update():void
 		{
 			super.update();
-			if (frameCount >= 7) {
+			if (frameCount >= 15) {
 				// I want to control all of the animation here instead of FlxSprite.play()
 				step();
 				frameCount = 0;

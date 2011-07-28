@@ -8,15 +8,10 @@ package
 		{
 			super(X, Y);
 			loadGraphic(graphic, true, false, 20, 21);
-			addAnimation("Bounce", [3,0], 3, true);
-			addAnimation("Jump", [3,0,1,2], 3, true);
-			addAnimation("Shoot", [3,4], 3, false);
-			
-			play("Jump");
+//			addAnimation("Bounce", [3,0], 3, true);
+//			addAnimation("Jump", [3,0,1,2], 3, true);
+//			addAnimation("Shoot", [3,4], 3, false);
 		}
 		
-		public function bounce():void {
-			play("Bounce");
-		}
 	}
 }

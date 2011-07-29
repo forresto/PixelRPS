@@ -69,17 +69,6 @@ package
 			redHand.visible = false;
 			blueHand.visible = false;
 			
-			// Boom
-			var emitter:FlxEmitter = new FlxEmitter(100, 50);
-			var whitePixel:FlxParticle;
-			for (i= 0; i < 10; i++) {
-				whitePixel = new FlxParticle();
-				whitePixel.makeGraphic(10, 10, 0xFFFFFFFF);
-				whitePixel.visible = false;
-				emitter.add(whitePixel);
-			}
-			add(emitter);
-			emitter.start();
 		}
 		
 		override public function update():void
@@ -99,16 +88,19 @@ package
 		private function step():void {
 			switch (introStep) {
 				case "Jump":
-					// Hide hands and last loser
+					// Hide hands 
 					redHand.visible = false;
 					blueHand.visible = false;
+					// Hide last loser
 					if (blueShown > bluePoints) {
+						boom(blueTeam.members[blueShown-1].x, blueTeam.members[blueShown-1].y+5, 0xFF0000FF);
 						blueTeam.members[blueShown-1].visible = false;
 						blueShown--;
 						blueHand.x -= 12;
 						redHand.x -= 12;
 					}
 					if (redShown > redPoints) {
+						boom(redTeam.members[redShown-1].x+5, redTeam.members[redShown-1].y+5, 0xFFFF0000);
 						redTeam.members[redShown-1].visible = false;
 						redShown--;
 						blueHand.x += 12;
@@ -117,42 +109,61 @@ package
 					// Show team members until full
 					if (blueShown < bluePoints) {
 						blueFrame(0);
+						if (redShown == redPoints) redFrame(0);
 					}
 					if (redShown < redPoints) {
 						redFrame(0);
+						if (blueShown == bluePoints) blueFrame(0);
 					}
 					introStep = "Jump2";
 					break;
 				case "Jump2":
 					if (blueShown < bluePoints) {
 						blueFrame(1);
+						if (redShown == redPoints) redFrame(3);
 					}
 					if (redShown < redPoints) {
 						redFrame(1);
+						if (blueShown == bluePoints) blueFrame(3);
 					}
 					introStep = "Jump3";
 					break;
 				case "Jump3":
+					var blueNeedsToLand:Boolean = false; //HACK
 					if (blueShown < bluePoints) {
 						blueFrame(2);
 						blueShown++;
+						blueNeedsToLand = true;
+						if (redShown == redPoints) redFrame(0);
 					}
 					if (redShown < redPoints) {
 						redFrame(2);
 						redShown++;
+						if (!blueNeedsToLand && blueShown == bluePoints) blueFrame(0);
 					}
 					introStep = "Land";
 					break;
 				case "Land":
 					blueFrame(3);
 					redFrame(3);
-					blueTeam.members[blueShown-1].visible = true;
-					redTeam.members[redShown-1].visible = true;
+					if (blueShown>0) blueTeam.members[blueShown-1].visible = true;
+					if (redShown>0) redTeam.members[redShown-1].visible = true;
 					introStep = "Jump";
 					
 					if (redShown == redPoints && blueShown == bluePoints) {
 						introStep = "Ready";
 					}
+					if (bluePoints == 10 || redPoints == 10) {
+						introStep = "Dance";
+					}
+					break;
+				case "Dance":
+					allFrame(0);
+					introStep = "Dance2";
+					break;
+				case "Dance2":
+					allFrame(3);
+					introStep = "Dance";
 					break;
 				case "Ready":
 					allFrame(0);
@@ -192,7 +203,7 @@ package
 					break;
 				case "AikoDeshou":
 					allFrame(0, true);
-					introStep = "BounceDown";
+					introStep = "BounceDown3";
 					break;
 				case "BounceDown3":
 					allFrame(3, true);
@@ -210,8 +221,7 @@ package
 					allFrame(3, true);
 					blueHand.randomFrame();
 					redHand.randomFrame();
-//					blueHand.frame = 1;
-//					redHand.frame = 1;
+					//blueHand.frame = redHand.frame;
 					if (blueHand.frame == redHand.frame) {
 						// Tie
 						status.text = "Tie...";
@@ -251,14 +261,30 @@ package
 		private function blueFrame(frame:uint, skipLast:Boolean=false):void {
 			var blueTill:uint = skipLast ? blueShown-1 : blueShown;
 			for (var i:uint=0; i<blueTill; i++){
-				blueTeam.members[i].frame = frame;
+				if (i<10) blueTeam.members[i].frame = frame;
 			}
 		}
 		private function redFrame(frame:uint, skipLast:Boolean=false):void {
 			var redTill:uint = skipLast ? redShown-1 : redShown;
 			for (var i:uint=0; i<redTill; i++){
-				redTeam.members[i].frame = frame;
+				if (i<10) redTeam.members[i].frame = frame;
 			}
+		}
+		
+		private function boom(x:int, y:int, color:uint=0xFFFFFFFF):void {
+			
+			var emitter:FlxEmitter = new FlxEmitter(x, y, 40);
+			var pixelParticle:FlxParticle;
+			for (var i:uint=0; i < 20; i++) {
+				pixelParticle = new FlxParticle();
+				pixelParticle.makeGraphic(2, 2, 0xFFFFFFFF);
+				emitter.add(pixelParticle);
+				pixelParticle = new FlxParticle();
+				pixelParticle.makeGraphic(2, 2, color);
+				emitter.add(pixelParticle);
+			}
+			add(emitter);
+			emitter.start(true, 4);
 		}
 		
 	}

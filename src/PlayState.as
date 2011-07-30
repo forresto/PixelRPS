@@ -42,7 +42,7 @@ package
 			blueScore = new FlxText(0, 15, 20, "")
 			add(blueScore);
 
-			redScore = new FlxText(100, 15, 20, "")
+			redScore = new FlxText(120, 15, 20, "")
 			add(redScore);
 
 			redTeam = new FlxGroup();
@@ -182,6 +182,7 @@ package
 					blueHand.y += 1;
 					redHand.y += 1;
 					introStep = "BounceUp";
+					status.text = "Saisho wa";
 					break;
 				case "BounceUp":
 					allFrame(0, true);
@@ -194,6 +195,7 @@ package
 					blueHand.y += 1;
 					redHand.y += 1;
 					introStep = "BounceUp2";
+					status.text = "Guu";
 					break;
 				case "BounceUp2":
 					allFrame(0, true);
@@ -210,6 +212,7 @@ package
 					blueHand.y += 1;
 					redHand.y += 1;
 					introStep = "BounceUp3";
+					status.text = "Janken";
 					break;
 				case "BounceUp3":
 					allFrame(0, true);
@@ -224,7 +227,7 @@ package
 					//blueHand.frame = redHand.frame;
 					if (blueHand.frame == redHand.frame) {
 						// Tie
-						status.text = "Tie...";
+						status.text = "Poi!";
 						introStep = "AikoDeshou";
 					} else if ((blueHand.frame == 0 && redHand.frame == 2) || (blueHand.frame == 1 && redHand.frame == 0) || (blueHand.frame == 2 && redHand.frame == 1)) {
 						// Blue wins
@@ -232,7 +235,7 @@ package
 						redPoints--;
 						blueScore.text = bluePoints.toString();
 						redScore.text = redPoints.toString();
-						status.text = "Blue wins!";
+						status.text = "Poi! Aoi Blue +";
 						introStep = "Jump";
 					} else {
 						// Red wins
@@ -240,7 +243,7 @@ package
 						bluePoints--;
 						blueScore.text = bluePoints.toString();
 						redScore.text = redPoints.toString();
-						status.text = "Red wins!";
+						status.text = "Poi! Aka Red +";
 						introStep = "Jump";
 					}
 					break;
@@ -272,7 +275,11 @@ package
 		}
 		
 		private function boom(x:int, y:int, color:uint=0xFFFFFFFF):void {
+			// Camera shake
+			var intensity:Number = Math.pow(10, Math.abs(bluePoints-redPoints)/10+.1) / 10;
+			FlxG.camera.shake(intensity*.05, intensity*.9);
 			
+			// Explosion
 			var emitter:FlxEmitter = new FlxEmitter(x, y, 40);
 			var pixelParticle:FlxParticle;
 			for (var i:uint=0; i < 20; i++) {

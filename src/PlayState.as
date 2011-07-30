@@ -34,6 +34,10 @@ package
 		private var blueShoot:int = -1;
 		private var redShoot:int = -1;
 		
+		// Game over
+		private var gameOver:Boolean = false;
+		private var fireworksCount:uint = 0;
+		
 		override public function create():void
 		{
 			var getReady:String = "";
@@ -69,11 +73,11 @@ package
 			
 			for(var i:int = 0; i < numPosts; i++)
 			{
-				posts.add(new FlxSprite(i*12+10, 56, ImageResources.imgPost));
-				var newBlue:Kid = new Kid(i*12, 40, ImageResources.imgBlueKid);
+				posts.add(new FlxSprite(i*12+10, 52, ImageResources.imgPost));
+				var newBlue:Kid = new Kid(i*12, 36, ImageResources.imgBlueKid);
 				newBlue.visible = i==0 ? true : false;
 				blueTeam.add(newBlue);
-				var newRed:Kid = new Kid(110-i*12, 40, ImageResources.imgRedKid);
+				var newRed:Kid = new Kid(110-i*12, 36, ImageResources.imgRedKid);
 				newRed.visible = i==0 ? true : false;
 				redTeam.add(newRed);
 			}
@@ -82,16 +86,16 @@ package
 			add(blueTeam);
 			add(redTeam);
 			
-			blueHand = new KidHands(48, 44, ImageResources.imgBlueHands);
+			blueHand = new KidHands(48, 40, ImageResources.imgBlueHands);
 			add(blueHand);
 			blueHand.visible = false;
-			redHand = new KidHands(62, 44, ImageResources.imgRedHands);
+			redHand = new KidHands(62, 40, ImageResources.imgRedHands);
 			add(redHand);
 			redHand.visible = false;
-			blueHandScore = new KidHands(43, 15, ImageResources.imgBlueHands);
+			blueHandScore = new KidHands(44, 15, ImageResources.imgBlueHands);
 			add(blueHandScore);
 			blueHandScore.visible = false;
-			redHandScore = new KidHands(67, 15, ImageResources.imgRedHands);
+			redHandScore = new KidHands(65, 15, ImageResources.imgRedHands);
 			add(redHandScore);
 			redHandScore.visible = false;
 		}
@@ -103,6 +107,10 @@ package
 			if (FlxG.keys.justPressed("ESCAPE"))
 			{
 				FlxG.switchState(new MenuState());
+			}
+			
+			if (gameOver && FlxG.keys.justPressed("SPACE")){
+				FlxG.switchState(new PlayState());
 			}
 
 			if (FlxG.keys.A) {
@@ -122,7 +130,7 @@ package
 			}
 
 			if (frameCount >= 15) {
-				// I want to control all of the animation here instead of FlxSprite.play()
+				// I want to control all of the animation with step() instead of FlxSprite.play()
 				step();
 				frameCount = 0;
 			}
@@ -205,6 +213,7 @@ package
 					}
 					if (bluePoints == 10 || redPoints == 10) {
 						introStep = "Dance";
+						gameOver = true;
 					}
 					break;
 				case "Dance":
@@ -214,6 +223,13 @@ package
 				case "Dance2":
 					allFrame(3);
 					introStep = "Dance";
+					// Fireworks
+					if (fireworksCount >= 1) {
+						fireworksCount = 0;
+						boom(Math.floor(Math.random()*FlxG.width), 20, 0xFF000000+Math.floor(Math.random()*0xFFFFFF), false);
+					} else {
+						fireworksCount++;
+					}
 					break;
 				case "Ready":
 					allFrame(0);
@@ -351,22 +367,26 @@ package
 			}
 		}
 		
-		private function boom(x:int, y:int, color:uint=0xFFFFFFFF):void {
+		private function boom(x:int, y:int, color:uint=0xFFFFFFFF, shake:Boolean=true):void {
 			// Camera shake
-			var intensity:Number = Math.pow(10, Math.abs(bluePoints-redPoints)/10+.1) / 10;
-			FlxG.camera.shake(intensity*.05, intensity*.9);
+			if (shake) {
+				var intensity:Number = Math.pow(10, Math.abs(bluePoints-redPoints)/10+.1) / 10;
+				FlxG.camera.shake(intensity*.05, intensity*.9);
+			}
 			
 			// Explosion
-			var emitter:FlxEmitter = new FlxEmitter(x, y, 40);
+			var emitter:FlxEmitter = new FlxEmitter(x, y, 60);
 			var pixelParticle:FlxParticle;
-			for (var i:uint=0; i < 20; i++) {
+			for (var i:uint=0; i < 30; i++) {
 				pixelParticle = new FlxParticle();
-				pixelParticle.makeGraphic(2, 2, 0xFFFFFFFF);
+				pixelParticle.makeGraphic(Math.floor(Math.random()*2)+1, Math.floor(Math.random()*2)+1, 0xFFFFFFFF);
 				emitter.add(pixelParticle);
 				pixelParticle = new FlxParticle();
-				pixelParticle.makeGraphic(2, 2, color);
+				pixelParticle.makeGraphic(Math.floor(Math.random()*2)+1, Math.floor(Math.random()*2)+1, color);
 				emitter.add(pixelParticle);
 			}
+			emitter.maxRotation = 0;
+			emitter.minRotation = 0;
 			add(emitter);
 			emitter.start(true, 4);
 		}

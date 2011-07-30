@@ -6,12 +6,6 @@ package
 
 	public class PlayState extends FlxState
 	{
-		[Embed(source="../assets/post.png")] private var imgPost:Class;
-		[Embed(source="../assets/blue.png")] private var imgBlueKid:Class;
-		[Embed(source="../assets/red.png")] private var imgRedKid:Class;
-		[Embed(source="../assets/blue-hands.png")] private var imgBlueHands:Class;
-		[Embed(source="../assets/red-hands.png")] private var imgRedHands:Class;
-		
 		public var blueTeam:FlxGroup;
 		public var redTeam:FlxGroup;
 		public var posts:FlxGroup;
@@ -27,16 +21,40 @@ package
 		private var frameCount:uint = 0;
 		private var introStep:String = "Jump";
 		
-		private var blueHand:KidHands = new KidHands(48, 54, imgBlueHands);
-		private var redHand:KidHands = new KidHands(62, 54, imgRedHands);
+		private var blueHand:KidHands;
+		private var redHand:KidHands;
 		
 		private var status:FlxText;
 		private var blueScore:FlxText;
 		private var redScore:FlxText;
+		private var blueHandScore:KidHands;
+		private var redHandScore:KidHands;
+		
+		// Interactive
+		private var blueShoot:int = -1;
+		private var redShoot:int = -1;
 		
 		override public function create():void
 		{
-			status = new FlxText(0, 0, FlxG.width, "RPS BATTLE GO")
+			var getReady:String = "";
+			switch (FlxG.level) {
+				case 0:
+					getReady = "RPS Computer Battle";
+					break;
+				case 1:
+					getReady = "Get ready! Blue: ASD";
+					break;
+				case 2:
+					getReady = "Get ready! Red: JKL";
+					break;
+				case 3:
+					getReady = "Get ready! Blue: ASD, Red: JKL";
+					break;
+				default:
+					getReady = "RPS Computer Battle";
+					break;
+			}
+			status = new FlxText(0, 0, FlxG.width, getReady)
 			add(status);
 
 			blueScore = new FlxText(0, 15, 20, "")
@@ -51,11 +69,11 @@ package
 			
 			for(var i:int = 0; i < numPosts; i++)
 			{
-				posts.add(new FlxSprite(i*12+10, 66, imgPost));
-				var newBlue:Kid = new Kid(i*12, 50, imgBlueKid);
+				posts.add(new FlxSprite(i*12+10, 56, ImageResources.imgPost));
+				var newBlue:Kid = new Kid(i*12, 40, ImageResources.imgBlueKid);
 				newBlue.visible = i==0 ? true : false;
 				blueTeam.add(newBlue);
-				var newRed:Kid = new Kid(110-i*12, 50, imgRedKid);
+				var newRed:Kid = new Kid(110-i*12, 40, ImageResources.imgRedKid);
 				newRed.visible = i==0 ? true : false;
 				redTeam.add(newRed);
 			}
@@ -64,16 +82,45 @@ package
 			add(blueTeam);
 			add(redTeam);
 			
-			add(redHand);
+			blueHand = new KidHands(48, 44, ImageResources.imgBlueHands);
 			add(blueHand);
-			redHand.visible = false;
 			blueHand.visible = false;
-			
+			redHand = new KidHands(62, 44, ImageResources.imgRedHands);
+			add(redHand);
+			redHand.visible = false;
+			blueHandScore = new KidHands(43, 15, ImageResources.imgBlueHands);
+			add(blueHandScore);
+			blueHandScore.visible = false;
+			redHandScore = new KidHands(67, 15, ImageResources.imgRedHands);
+			add(redHandScore);
+			redHandScore.visible = false;
 		}
 		
 		override public function update():void
 		{
 			super.update();
+			
+			if (FlxG.keys.justPressed("ESCAPE"))
+			{
+				FlxG.switchState(new MenuState());
+			}
+
+			if (FlxG.keys.A) {
+				blueShoot = 0;
+			} else if (FlxG.keys.S) {
+				blueShoot = 1;
+			} else if (FlxG.keys.D) {
+				blueShoot = 2;
+			}
+			
+			if (FlxG.keys.J) {
+				redShoot = 0;
+			} else if (FlxG.keys.K) {
+				redShoot = 1;
+			} else if (FlxG.keys.L) {
+				redShoot = 2;
+			}
+
 			if (frameCount >= 15) {
 				// I want to control all of the animation here instead of FlxSprite.play()
 				step();
@@ -106,6 +153,9 @@ package
 						blueHand.x += 12;
 						redHand.x += 12;
 					}
+					// Reset next shot
+					blueShoot = -1;
+					redShoot = -1;
 					// Show team members until full
 					if (blueShown < bluePoints) {
 						blueFrame(0);
@@ -205,6 +255,10 @@ package
 					break;
 				case "AikoDeshou":
 					allFrame(0, true);
+					blueShoot = -1;
+					redShoot = -1;
+					blueHand.frame = 0;
+					redHand.frame = 0;
 					introStep = "BounceDown3";
 					break;
 				case "BounceDown3":
@@ -219,12 +273,35 @@ package
 					blueHand.y -= 1;
 					redHand.y -= 1;
 					introStep = "Shoot";
+					// Make sure each has shot if needed
+					if ((FlxG.level == 3 || FlxG.level == 1) && blueShoot == -1) {
+						// Two or one human blue
+						introStep = "BounceDown3";
+					}
+					if ((FlxG.level == 3 || FlxG.level == 2) && redShoot == -1) {
+						// Two or one human red
+						introStep = "BounceDown3";
+					}
 					break;
 				case "Shoot":
 					allFrame(3, true);
-					blueHand.randomFrame();
-					redHand.randomFrame();
-					//blueHand.frame = redHand.frame;
+					// Random for Comp players
+					if (FlxG.level == 0 || FlxG.level == 1) {
+						// Comp or one human blue
+						redShoot = Math.floor(Math.random()*3);
+					}
+					if (FlxG.level == 0 || FlxG.level == 2) {
+						// Comp or one human red
+						blueShoot = Math.floor(Math.random()*3);
+					}
+					// Playing hands
+					blueHand.frame = blueShoot;
+					redHand.frame = redShoot;
+					// Scoring hands
+					blueHandScore.visible = true;
+					redHandScore.visible = true;
+					blueHandScore.frame = blueShoot;
+					redHandScore.frame = redShoot;
 					if (blueHand.frame == redHand.frame) {
 						// Tie
 						status.text = "Poi!";

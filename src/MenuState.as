@@ -1,32 +1,101 @@
 package
 {
+	import flash.ui.Mouse;
+	
 	import org.flixel.*;
 
 	public class MenuState extends FlxState
 	{
+		private var hands:FlxGroup;
+		private var frameCount:uint = 0;
+		
 		override public function create():void
 		{
+			hands = new FlxGroup();
+			var hand:KidHands;
+			for (var i:int = 0; i < 8; i++) {
+				// Blue side
+				hand = new KidHands(-4, i*15-15, ImageResources.imgBlueHands);
+				hand.randomFrame();
+				hands.add(hand);
+				// Red side
+				hand = new KidHands(FlxG.width-14, i*15-15, ImageResources.imgRedHands);
+				hand.randomFrame();
+				hands.add(hand);
+			}
+			add(hands);
+			
+			var kid:Kid;
+			for (i=0; i < 4; i++) {
+				kid = new Kid(17, i*25+3, ImageResources.imgBlueKid);
+				add(kid);
+				kid.play("Bounce");
+				kid = new Kid(FlxG.width-36, i*25+3, ImageResources.imgRedKid);
+				add(kid);
+				kid.play("Bounce");
+			}
+			
 			var t:FlxText;
-			t = new FlxText(0,FlxG.height/2-10,FlxG.width,"EnergyMan");
+			t = new FlxText(0, 5, FlxG.width,"Pixel RPS");
 			t.size = 16;
 			t.alignment = "center";
 			add(t);
-			t = new FlxText(FlxG.width/2-50,FlxG.height-20,100,"click to play");
+			
+			t = new FlxText(1, 29, FlxG.width, "Click, then press: \n" +
+				"Space: Zero Player \n" +
+				"A: Red Player  (ASD) \n" +
+				"J: Blue Player  (JKL) \n" +
+				"G: Two Player \n" +
+				"Esc: Menu \n" +
+				"(c)2011  sembiki.com");
 			t.alignment = "center";
 			add(t);
 			
-			FlxG.mouse.show();
 		}
 
 		override public function update():void
 		{
 			super.update();
+			
+			if(FlxG.mouse.justPressed()) {
+				Mouse.hide();
+			}
 
-			if(FlxG.mouse.justPressed())
+			if(FlxG.keys.justPressed("SPACE"))
 			{
-				FlxG.mouse.hide();
+				FlxG.level = 0;
 				FlxG.switchState(new PlayState());
 			}
+			if(FlxG.keys.justPressed("A"))
+			{
+				FlxG.level = 1;
+				FlxG.switchState(new PlayState());
+			}
+			if(FlxG.keys.justPressed("J"))
+			{
+				FlxG.level = 2;
+				FlxG.switchState(new PlayState());
+			}
+			if(FlxG.keys.justPressed("G"))
+			{
+				FlxG.level = 3;
+				FlxG.switchState(new PlayState());
+			}
+			
+			if (frameCount >= 4) {
+				frameCount = 0;
+			} else {
+				frameCount++;
+			}
+			for (var i:int=0; i<hands.length; i++) {
+				if (frameCount == 0) hands.members[i].y++;
+				if (hands.members[i].y >= FlxG.height+15){
+					hands.members[i].y = -12;
+					hands.members[i].randomFrame();
+				} 
+			}
+
 		}
+		
 	}
 }

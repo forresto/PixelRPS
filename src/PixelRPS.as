@@ -9,7 +9,7 @@ package
 	{
 		public function PixelRPS()
 		{
-			super(150, 100, PlayState, 3, 60, 30, true);
+			super(150, 100, MenuState, 3, 60, 30, true);
 		}
 	}
 }

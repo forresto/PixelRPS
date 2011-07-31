@@ -10,6 +10,9 @@ package
 		public var redTeam:FlxGroup;
 		public var posts:FlxGroup;
 		
+		// Layout
+		private var leftMargin:uint = 8;
+		
 		public var numPosts:uint = 10;
 		public var teamSize:uint = 5;
 		
@@ -52,19 +55,19 @@ package
 					getReady = "Get ready! Red: JKL";
 					break;
 				case 3:
-					getReady = "Get ready! Blue: ASD, Red: JKL";
+					getReady = "Ready! Blue: ASD, Red: JKL";
 					break;
 				default:
 					getReady = "RPS Computer Battle";
 					break;
 			}
-			status = new FlxText(0, 0, FlxG.width, getReady)
+			status = new FlxText(0+leftMargin, 0, FlxG.width, getReady)
 			add(status);
 
-			blueScore = new FlxText(0, 15, 20, "")
+			blueScore = new FlxText(0+leftMargin, 15, 20, "")
 			add(blueScore);
 
-			redScore = new FlxText(120, 15, 20, "")
+			redScore = new FlxText(120+leftMargin, 15, 20, "")
 			add(redScore);
 
 			redTeam = new FlxGroup();
@@ -73,11 +76,11 @@ package
 			
 			for(var i:int = 0; i < numPosts; i++)
 			{
-				posts.add(new FlxSprite(i*12+10, 52, ImageResources.imgPost));
-				var newBlue:Kid = new Kid(i*12, 36, ImageResources.imgBlueKid);
+				posts.add(new FlxSprite(i*12+10+leftMargin, 52, ImageResources.imgPost));
+				var newBlue:Kid = new Kid(i*12+leftMargin, 36, ImageResources.imgBlueKid);
 				newBlue.visible = i==0 ? true : false;
 				blueTeam.add(newBlue);
-				var newRed:Kid = new Kid(110-i*12, 36, ImageResources.imgRedKid);
+				var newRed:Kid = new Kid(110-i*12+leftMargin, 36, ImageResources.imgRedKid);
 				newRed.visible = i==0 ? true : false;
 				redTeam.add(newRed);
 			}
@@ -86,16 +89,16 @@ package
 			add(blueTeam);
 			add(redTeam);
 			
-			blueHand = new KidHands(48, 40, ImageResources.imgBlueHands);
+			blueHand = new KidHands(48+leftMargin, 40, ImageResources.imgBlueHands);
 			add(blueHand);
 			blueHand.visible = false;
-			redHand = new KidHands(62, 40, ImageResources.imgRedHands);
+			redHand = new KidHands(62+leftMargin, 40, ImageResources.imgRedHands);
 			add(redHand);
 			redHand.visible = false;
-			blueHandScore = new KidHands(44, 15, ImageResources.imgBlueHands);
+			blueHandScore = new KidHands(44+leftMargin, 15, ImageResources.imgBlueHands);
 			add(blueHandScore);
 			blueHandScore.visible = false;
-			redHandScore = new KidHands(65, 15, ImageResources.imgRedHands);
+			redHandScore = new KidHands(65+leftMargin, 15, ImageResources.imgRedHands);
 			add(redHandScore);
 			redHandScore.visible = false;
 		}
@@ -148,14 +151,14 @@ package
 					blueHand.visible = false;
 					// Hide last loser
 					if (blueShown > bluePoints) {
-						boom(blueTeam.members[blueShown-1].x, blueTeam.members[blueShown-1].y+5, 0xFF0000FF);
+						boom(blueTeam.members[blueShown-1].x+2, blueTeam.members[blueShown-1].y+5, 0xFF0000FF);
 						blueTeam.members[blueShown-1].visible = false;
 						blueShown--;
 						blueHand.x -= 12;
 						redHand.x -= 12;
 					}
 					if (redShown > redPoints) {
-						boom(redTeam.members[redShown-1].x+5, redTeam.members[redShown-1].y+5, 0xFFFF0000);
+						boom(redTeam.members[redShown-1].x+10, redTeam.members[redShown-1].y+5, 0xFFFF0000);
 						redTeam.members[redShown-1].visible = false;
 						redShown--;
 						blueHand.x += 12;
@@ -226,7 +229,7 @@ package
 					// Fireworks
 					if (fireworksCount >= 1) {
 						fireworksCount = 0;
-						boom(Math.floor(Math.random()*FlxG.width), 20, 0xFF000000+Math.floor(Math.random()*0xFFFFFF), false);
+						boom(Math.floor(Math.random()*(FlxG.width-20))+10, 20, 0xFF000000+Math.floor(Math.random()*0xFFFFFF), false);
 					} else {
 						fireworksCount++;
 					}

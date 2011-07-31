@@ -19,7 +19,7 @@ package
 				hand.randomFrame();
 				hands.add(hand);
 				// Red side
-				hand = new KidHands(FlxG.width-14, i*15-15, ImageResources.imgRedHands);
+				hand = new KidHands(FlxG.width-16, i*15-15, ImageResources.imgRedHands);
 				hand.randomFrame();
 				hands.add(hand);
 			}
@@ -27,21 +27,21 @@ package
 			
 			var kid:Kid;
 			for (i=0; i < 4; i++) {
-				kid = new Kid(17, i*25+3, ImageResources.imgBlueKid);
+				kid = new Kid(17, i*25+2, ImageResources.imgBlueKid);
 				add(kid);
 				kid.play("Bounce");
-				kid = new Kid(FlxG.width-36, i*25+3, ImageResources.imgRedKid);
+				kid = new Kid(FlxG.width-36, i*25+2, ImageResources.imgRedKid);
 				add(kid);
 				kid.play("Bounce");
 			}
 			
 			var t:FlxText;
-			t = new FlxText(0, 5, FlxG.width,"Pixel RPS");
+			t = new FlxText(0, 3, FlxG.width,"Pixel RPS");
 			t.size = 16;
 			t.alignment = "center";
 			add(t);
 			
-			t = new FlxText(1, 29, FlxG.width, "Click, then press: \n" +
+			t = new FlxText(0, 27, FlxG.width, "Click, then press: \n" +
 				"Space: Zero Player \n" +
 				"A: Red Player  (ASD) \n" +
 				"J: Blue Player  (JKL) \n" +

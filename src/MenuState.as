@@ -57,8 +57,23 @@ package
 		{
 			super.update();
 			
-			if(FlxG.mouse.justPressed()) {
-				Mouse.hide();
+			if(FlxG.mouse.pressed()) {
+				if (40 < FlxG.mouse.screenY && FlxG.mouse.screenY < 50) {
+					FlxG.level = 0;
+					FlxG.switchState(new PlayState());
+				}
+				else if (50 < FlxG.mouse.screenY && FlxG.mouse.screenY < 60) {
+					FlxG.level = 1;
+					FlxG.switchState(new PlayState());
+				}
+				else if (60 < FlxG.mouse.screenY && FlxG.mouse.screenY < 70) {
+					FlxG.level = 2;
+					FlxG.switchState(new PlayState());
+				}
+				else if (70 < FlxG.mouse.screenY && FlxG.mouse.screenY < 80) {
+					FlxG.level = 3;
+					FlxG.switchState(new PlayState());
+				}
 			}
 
 			if(FlxG.keys.justPressed("SPACE"))
@@ -84,15 +99,15 @@ package
 			
 			if (frameCount >= 4) {
 				frameCount = 0;
+				for (var i:int=0; i<hands.length; i++) {
+					hands.members[i].y++;
+					if (hands.members[i].y >= FlxG.height+15){
+						hands.members[i].y = -12;
+						hands.members[i].randomFrame();
+					} 
+				}
 			} else {
 				frameCount++;
-			}
-			for (var i:int=0; i<hands.length; i++) {
-				if (frameCount == 0) hands.members[i].y++;
-				if (hands.members[i].y >= FlxG.height+15){
-					hands.members[i].y = -12;
-					hands.members[i].randomFrame();
-				} 
 			}
 
 		}

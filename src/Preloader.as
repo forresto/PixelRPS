@@ -7,7 +7,6 @@ package
 		public function Preloader()
 		{
 			className = "PixelRPS";
-			minDisplayTime = 1000;
 			super();
 		}
 	}

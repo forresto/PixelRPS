@@ -21,6 +21,8 @@ package
 		private var bluePoints:uint = teamSize;
 		private var redPoints:uint = teamSize;
 		
+		// Framerate
+		private var stepWait:uint = 15;
 		private var frameCount:uint = 0;
 		private var introStep:String = "Jump";
 		
@@ -115,6 +117,12 @@ package
 			if (gameOver && FlxG.keys.justPressed("SPACE")){
 				FlxG.switchState(new PlayState());
 			}
+			
+			if (FlxG.keys.justPressed("P")){
+				stepWait++;
+			} else if (FlxG.keys.justPressed("O") && stepWait>1) {
+				stepWait--;
+			}
 
 			if (FlxG.keys.A) {
 				blueShoot = 0;
@@ -132,7 +140,7 @@ package
 				redShoot = 2;
 			}
 
-			if (frameCount >= 15) {
+			if (frameCount >= stepWait) {
 				// I want to control all of the animation with step() instead of FlxSprite.play()
 				step();
 				frameCount = 0;
